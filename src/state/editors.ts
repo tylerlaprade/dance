@@ -234,12 +234,24 @@ export class PerEditorState implements vscode.Disposable {
   public notifyDidBecomeActive() {
     const { editor, mode } = this;
 
-    this.extension.statusBar.activeModeSegment.setContent(mode.name);
+    this.extension.statusBar.activeModeSegment.setContent(this._formatDisplayName(mode.name));
 
     editor.options.lineNumbers = mode.lineNumbers;
     editor.options.cursorStyle = mode.cursorStyle;
 
     return vscode.commands.executeCommand("setContext", extensionName + ".mode", mode.name);
+  }
+  private _formatDisplayName(modeName: string) {
+    switch (vscode.workspace.getConfiguration(extensionName)
+      .get<string>("activeModeDisplayStyle")) {
+    case "uppercase":
+      return modeName.toUpperCase();
+    case "lowercase":
+      return modeName.toLowerCase();
+    case "as-is":
+    default:
+      return modeName;
+    }
   }
 
   /**
